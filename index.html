@@ -3,129 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anubhav's Portfolio</title>
+    <title>Catch the Falling Items Game</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
+        }
+
+        h1 {
+            margin-top: 20px;
             color: #333;
         }
-        header {
+
+        #game-container {
+            position: relative;
+            margin: 20px auto;
+            width: 400px;
+            height: 600px;
+            background: #cce7ff;
+            border: 2px solid #333;
+            overflow: hidden;
+        }
+
+        #basket {
+            position: absolute;
+            bottom: 20px;
+            left: 180px;
+            width: 60px;
+            height: 30px;
             background: #4CAF50;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        nav {
-            display: flex;
-            justify-content: center;
-            background: #333;
-            padding: 10px 0;
-        }
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 15px;
-        }
-        nav a:hover {
-            text-decoration: underline;
-        }
-        section {
-            padding: 20px;
-        }
-        .container {
-            max-width: 900px;
-            margin: auto;
-        }
-        .card {
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        footer {
-            text-align: center;
-            padding: 15px;
-            background: #333;
-            color: white;
-            margin-top: 20px;
-        }
-        .btn {
-            display: inline-block;
-            background: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            text-decoration: none;
             border-radius: 5px;
-            margin-top: 10px;
         }
-        .btn:hover {
-            background: #45a049;
+
+        .falling-item {
+            position: absolute;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background: red;
+            border-radius: 50%;
+        }
+
+        #score {
+            margin: 20px;
+            font-size: 24px;
+            color: #333;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Anubhav's Portfolio</h1>
-        <p>Data Scientist | Designer | Problem Solver</p>
-    </header>
+    <h1>Catch the Falling Items</h1>
+    <div id="game-container">
+        <div id="basket"></div>
+    </div>
+    <div id="score">Score: 0</div>
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const basket = document.getElementById('basket');
+        const scoreElement = document.getElementById('score');
+        let score = 0;
 
-    <nav>
-        <a href="#about">About</a>
-        <a href="#skills">Skills</a>
-        <a href="#projects">Projects</a>
-        <a href="#contact">Contact</a>
-    </nav>
+        // Move the basket with arrow keys
+        document.addEventListener('keydown', (event) => {
+            const basketLeft = basket.offsetLeft;
+            if (event.key === 'ArrowLeft' && basketLeft > 0) {
+                basket.style.left = basketLeft - 20 + 'px';
+            }
+            if (event.key === 'ArrowRight' && basketLeft < gameContainer.offsetWidth - basket.offsetWidth) {
+                basket.style.left = basketLeft + 20 + 'px';
+            }
+        });
 
-    <section id="about" class="container">
-        <h2>About Me</h2>
-        <div class="card">
-            <p>
-                Hi, I'm Anubhav! I am a data scientist with over 5 years of experience in analyzing data, building predictive models, and creating impactful visualizations. I also have a passion for design, which helps me craft intuitive and aesthetically pleasing solutions.
-            </p>
-        </div>
-    </section>
+        // Generate falling items
+        function createFallingItem() {
+            const item = document.createElement('div');
+            item.classList.add('falling-item');
+            item.style.left = Math.random() * (gameContainer.offsetWidth - 20) + 'px';
+            gameContainer.appendChild(item);
 
-    <section id="skills" class="container">
-        <h2>Skills</h2>
-        <div class="card">
-            <ul>
-                <li>Data Analysis & Visualization (Python, R, Tableau)</li>
-                <li>Machine Learning & Deep Learning</li>
-                <li>Web Design & UI/UX</li>
-                <li>SQL & Big Data Tools</li>
-            </ul>
-        </div>
-    </section>
+            let itemFallInterval = setInterval(() => {
+                const itemTop = item.offsetTop;
+                const basketLeft = basket.offsetLeft;
+                const basketRight = basketLeft + basket.offsetWidth;
 
-    <section id="projects" class="container">
-        <h2>Projects</h2>
-        <div class="card">
-            <h3>Project 1: Predictive Sales Analysis</h3>
-            <p>Developed a machine learning model to predict sales trends, resulting in a 20% increase in forecast accuracy.</p>
-            <a href="#" class="btn">View Project</a>
-        </div>
-        <div class="card">
-            <h3>Project 2: Interactive Data Dashboard</h3>
-            <p>Designed an interactive dashboard for monitoring key business metrics using Tableau and Python.</p>
-            <a href="#" class="btn">View Project</a>
-        </div>
-    </section>
+                // Check if item is caught
+                if (
+                    itemTop > gameContainer.offsetHeight - 50 &&
+                    item.offsetLeft + 20 > basketLeft &&
+                    item.offsetLeft < basketRight
+                ) {
+                    score++;
+                    scoreElement.textContent = `Score: ${score}`;
+                    item.remove();
+                    clearInterval(itemFallInterval);
+                } else if (itemTop > gameContainer.offsetHeight) {
+                    item.remove();
+                    clearInterval(itemFallInterval);
+                } else {
+                    item.style.top = itemTop + 5 + 'px';
+                }
+            }, 50);
+        }
 
-    <section id="contact" class="container">
-        <h2>Contact</h2>
-        <div class="card">
-            <p>If you'd like to get in touch, feel free to reach out via email or connect on LinkedIn.</p>
-            <p>Email: <a href="mailto:anubhav@example.com">anubhav@example.com</a></p>
-            <p>LinkedIn: <a href="#">linkedin.com/in/anubhav</a></p>
-        </div>
-    </section>
-
-    <footer>
-        <p>© 2024 Anubhav. All Rights Reserved.</p>
-    </footer>
+        // Spawn items every 1 second
+        setInterval(createFallingItem, 1000);
+    </script>
 </body>
 </html>
